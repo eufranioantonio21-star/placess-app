@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  phoneNumber String?
+  role      String   @default("CONSUMER") // "CONSUMER" or "BUSINESS"
+  photoUrl  String?
+  initials  String?
+  preferences String? @default("{}")
+  createdAt DateTime @default(now())
+  
+  // Relations
+  places    Place[]  // If Business Owner
+  orders    Order[]  // If Consumer
+  reviews   Review[]
+  notifications Notification[]
+}
+
+model Place {
+  id              Int      @id @default(autoincrement())
+  name            String
+  category        String
+  description     String?
+  keywords        String?
+  lat             Float
+  lng             Float
+  phoneNumber     String?
+  photoUrl        String?
+  capacity        String?  // e.g., "45% Full"
+  takeAwayEnabled Boolean  @default(true)
+  ownerId         Int
+  createdAt       DateTime @default(now())
+
+  // Relations
+  owner           User     @relation(fields: [ownerId], references: [id])
+  menuItems       MenuItem[]
+  campaigns       Campaign[]
+  orders          Order[]
+  reviews         Review[]
+}
+
+model MenuItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  available   Boolean  @default(true)
+  image       String?
+  placeId     Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  place       Place    @relation(fields: [placeId], references: [id])
+}
+
+model Campaign {
+  id          Int      @id @default(autoincrement())
+  type        String   // "discount", "reward", "happy_hour"
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  placeId     Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  place       Place    @relation(fields: [placeId], references: [id])
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  status      String   @default("pending") // "pending", "ready", "completed"
+  total       Float
+  userId      Int
+  placeId     Int
+  itemsJson   String   // Storing JSON string for simplicity in MVP
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  place       Place    @relation(fields: [placeId], references: [id])
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  rating      Int      // 1 to 5
+  comment     String?
+  userId      Int
+  placeId     Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  place       Place    @relation(fields: [placeId], references: [id])
+}
+model Notification {
+  id          Int      @id @default(autoincrement())
+  title       String
+  message     String
+  type        String   @default("SYSTEM") // "SYSTEM", "OFFER", "ALERT"
+  isRead      Boolean  @default(false)
+  userId      Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+}
+

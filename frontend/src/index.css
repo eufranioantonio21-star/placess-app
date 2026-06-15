@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Colors - PleySIS Theme */
+  --color-primary: #3AFF15;       /* Bright Neon Green */
+  --color-secondary: #1B2310;     /* Dark Greenish-Black */
+  --color-background: #111111;    /* Deep Black */
+  --color-surface: #1B1B1B;       /* Dark Grey for cards */
+  --color-accent: #3AFF15;        /* Neon Green for highlights */
+  --color-text-main: #ffffff;     /* White for text */
+  --color-text-muted: #a1a1aa;    /* Lighter grey for better contrast */
+  --color-outline: #1B2310;
+  
+  /* Glassmorphism Colors */
+  --glass-bg: rgba(27, 27, 27, 0.85);
+  --glass-border: rgba(58, 255, 21, 0.2);
+
+  /* Typography */
+  --font-family: 'Inter', sans-serif;
+  
+  /* Spacing */
+  --space-base: 4px;
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 40px;
+  --safe-area: 20px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --shadow-floating: 0 12px 40px rgba(58, 255, 21, 0.15); /* Neon glow */
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden; /* Prevent scrolling on body for mobile app feel */
+}
+
+/* Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-base);
+}
+
+.clay-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-clay);
+  border: 1px solid var(--color-outline);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-background);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 24px;
+  font-weight: 600;
+  font-family: var(--font-family);
+  box-shadow: var(--shadow-clay-btn);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+  box-shadow: inset 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Typography Classes */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-caption {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Animations */
+@keyframes slideUpNav {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpSheet {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropDownPopup {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpSheet 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-drop-down {
+  animation: dropDownPopup 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpPage {
+  from { transform: translateY(100vh); }
+  to { transform: translateY(0); }
+}
+
+.animate-slide-up-page {
+  animation: slideUpPage 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes float-pin {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: float-pin 3s ease-in-out infinite;
+}
+
+.btn-touch {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-touch:active {
+  transform: scale(0.92) !important;
+  opacity: 0.9;
+}
+
+
+/* Business Mode Transition */
+.animate-business-mode {
+  animation: scaleInBusiness 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes scaleInBusiness {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Global Input Styles */
+.auth-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  color: var(--color-text-main);
+  font-size: 15px;
+  font-family: var(--font-family);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(58, 255, 21, 0.1);
+}
+
+.auth-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
