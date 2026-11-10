@@ -2,29 +2,42 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch server.js",
+    "db:init:local": "node scripts/init-local.js",
+    "db:check:local": "node check-users.js",
+    "db:verify:review-local": "node scripts/verify-review-constraints.js",
+    "db:verify:campaign-local": "node scripts/verify-campaign-lineage.js",
+    "test:authz:local": "node scripts/verify-authz-local.js",
+    "prisma:validate": "prisma validate",
+    "prisma:generate": "prisma generate",
+    "seed:local": "node seed.js",
+    "test": "node --test && node --check server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.8.0",
-    "@prisma/client": "^7.8.0",
-    "bcrypt": "^6.0.0",
-    "better-sqlite3": "^12.10.1",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "@supabase/supabase-js": "2.118.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "express-rate-limit": "^8.5.2",
     "helmet": "^8.2.0",
-    "jsonwebtoken": "^9.0.3"
+    "pg": "^8.21.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "prisma": "^7.8.0"
+    "prisma": "^7.10.1"
+  },
+  "overrides": {
+    "body-parser": "2.4.0",
+    "ip-address": "10.7.6",
+    "proxy-addr": "2.0.8",
+    "qs": "6.17.1"
   }
 }

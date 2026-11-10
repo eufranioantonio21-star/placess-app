@@ -4,19 +4,23 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
   id        Int      @id @default(autoincrement())
+  authUserId String? @unique
   email     String   @unique
-  password  String
+  // Transitional only: kept nullable so the legacy hashes are not destroyed.
+  // New authentication is handled by Supabase Auth.
+  password  String?
   name      String
   phoneNumber String?
   role      String   @default("CONSUMER") // "CONSUMER" or "BUSINESS"
   photoUrl  String?
   initials  String?
   preferences String? @default("{}")
+  adultConfirmedAt DateTime?
+  deletionRequestedAt DateTime?
   createdAt DateTime @default(now())
   
   // Relations
@@ -24,6 +28,16 @@ model User {
   orders    Order[]  // If Consumer
   reviews   Review[]
   notifications Notification[]
+  staffMemberships PlaceMembership[]
+  campaignClicks CampaignClick[]
+}
+
+model RevokedSession {
+  id        String   @id
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }
 
 model Place {
@@ -47,6 +61,38 @@ model Place {
   campaigns       Campaign[]
   orders          Order[]
   reviews         Review[]
+  staffMemberships PlaceMembership[]
+}
+
+model PlaceMembership {
+  id                 Int      @id @default(autoincrement())
+  placeId            Int
+  userId             Int
+  canManageOrders    Boolean  @default(false)
+  canManageCampaigns Boolean  @default(false)
+  canManageMenu      Boolean  @default(false)
+  canViewMetrics     Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, userId])
+  @@index([userId])
+}
+
+model BusinessAuditEvent {
+  id           Int      @id @default(autoincrement())
+  actorUserId  Int
+  placeId      Int
+  targetUserId Int?
+  action       String
+  detailsJson  String   @default("{}")
+  createdAt    DateTime @default(now())
+
+  @@index([placeId, createdAt])
+  @@index([actorUserId, createdAt])
 }
 
 model MenuItem {
@@ -63,12 +109,29 @@ model MenuItem {
   place       Place    @relation(fields: [placeId], references: [id])
 }
 
+model CampaignClick {
+  id         Int      @id @default(autoincrement())
+  campaignId Int
+  userId     Int
+  createdAt  DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([userId, createdAt])
+}
+
 model Campaign {
   id          Int      @id @default(autoincrement())
   type        String   // "discount", "reward", "happy_hour"
   title       String
   description String
   isActive    Boolean  @default(true)
+  radiusKm    Float    @default(1)
+  durationHours Int    @default(24)
+  estimatedPriceAoa Int @default(0)
+  isSynthetic Boolean  @default(false)
   clicks      Int      @default(0)
   conversions Int      @default(0)
   placeId     Int
@@ -76,6 +139,7 @@ model Campaign {
 
   // Relations
   place       Place    @relation(fields: [placeId], references: [id])
+  clicksByUser CampaignClick[]
 }
 
 model Order {
@@ -85,11 +149,15 @@ model Order {
   userId      Int
   placeId     Int
   itemsJson   String   // Storing JSON string for simplicity in MVP
+  clientRequestId String?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   user        User     @relation(fields: [userId], references: [id])
   place       Place    @relation(fields: [placeId], references: [id])
+
+  @@unique([userId, clientRequestId])
 }
 
 model Review {
@@ -103,6 +171,8 @@ model Review {
   // Relations
   user        User     @relation(fields: [userId], references: [id])
   place       Place    @relation(fields: [placeId], references: [id])
+
+  @@unique([userId, placeId])
 }
 model Notification {
   id          Int      @id @default(autoincrement())

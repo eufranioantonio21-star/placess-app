@@ -1,9 +1,8 @@
 require('dotenv').config();
-const { PrismaClient } = require('@prisma/client');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+const { assertLocalDatabaseUrl } = require('./lib/local-database');
+const { prisma } = require('./lib/prisma');
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+assertLocalDatabaseUrl(process.env.DATABASE_URL);
 
 async function seed() {
   const user = await prisma.user.findFirst();
@@ -11,19 +10,19 @@ async function seed() {
 
   const place = await prisma.place.create({
     data: {
-      name: 'Green Leaf Vegan',
-      category: 'Restaurant',
-      description: 'The best 100% plant-based restaurant in town. We serve delicious organic meals.',
-      keywords: 'Vegan, Organic, Healthy, Plant-based, Vegetarian',
-      lat: 38.7230,
-      lng: -9.1400,
-      phoneNumber: '+351 912 345 600',
+      name: 'Spot Sintético Miramar',
+      category: 'Restaurantes',
+      description: 'Ficha sintética para testes locais da SPOTS.',
+      keywords: 'Synthetic, Local, Test',
+      lat: -8.8147,
+      lng: 13.2302,
+      phoneNumber: '+244 900 000 000',
       ownerId: user.id,
       campaigns: {
         create: {
           type: 'reward',
-          title: 'Free Vegan Smoothie',
-          description: 'Get a free smoothie when you buy any main dish today!',
+          title: 'Campanha sintética inactiva',
+          description: 'Conteúdo exclusivamente local para testes.',
           isActive: true
         }
       }
@@ -31,4 +30,9 @@ async function seed() {
   });
   console.log('Created place:', place.name);
 }
-seed().catch(console.error).finally(() => process.exit(0));
+seed()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());
